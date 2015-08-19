@@ -15,14 +15,14 @@ public class PiGenerator {
      */
     public static int[] computePiInHex(int precision) {
         // TODO: Implement (Problem 1.d)
-        if (precision < 0) {
+        if (precision <= 0) {
             return null;
         }
         else {
             int i = 0;
             int[] piDigits = new int[precision];
             while (i < precision) {
-                piDigits[i] = piDigit(i);
+                piDigits[i] = piDigit(i + 1);
                 i++;
             }
             return piDigits;
@@ -43,12 +43,11 @@ public class PiGenerator {
         // TODO: Implement (Problem 1.b)
         if (a < 0 || b < 0 || m < 0) {
             return -1;
-        }
-        else {
-            return (int) Math.pow(a, b) % m;
+        } else {
+            return (int) Math.round(Math.pow(a, b) % m);
         }
     }
-    
+
     /**
      * Computes the nth digit of Pi in base-16.
      * 
