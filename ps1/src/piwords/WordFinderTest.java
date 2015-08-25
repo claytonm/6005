@@ -21,6 +21,4 @@ public class WordFinderTest {
         assertEquals(expectedOutput, WordFinder.getSubstrings(haystack,
                                                               needles));
     }
-
-    // TODO: Write more tests (Problem 4.a)
 }
