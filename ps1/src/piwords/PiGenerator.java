@@ -14,7 +14,7 @@ public class PiGenerator {
      * @return precision digits of pi in hexadecimal.
      */
     public static int[] computePiInHex(int precision) {
-        // TODO: Implement (Problem 1.d)
+        // (Problem 1.d)
         if (precision <= 0) {
             return null;
         }
@@ -40,7 +40,7 @@ public class PiGenerator {
      * @return a^b mod m
      */
     public static int powerMod(int a, int b, int m) {
-        // TODO: Implement (Problem 1.b)
+        // (Problem 1.b)
         if (a < 0 || b < 0 || m < 0) {
             return -1;
         } else {

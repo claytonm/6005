@@ -14,10 +14,9 @@ public class AlphabetGeneratorTest {
         char[] expectedOutput = {'a', 'a', 'a', 'a',
                                  'b', 'b', 'b', 'b',
                                  'c', 'c'};
+
         assertArrayEquals(expectedOutput,
                 AlphabetGenerator.generateFrequencyAlphabet(
                         10, trainingData));
     }
-
-    // TODO: Write more tests (Problem 5.a)
 }

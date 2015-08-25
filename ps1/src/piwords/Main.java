@@ -28,64 +28,64 @@ public class Main {
                 "Digits of Pi in base-16: %s\n\n",
                 MaybeTruncateString(Arrays.toString(piHexDigits), 50));
 
-//        System.out.println("Problem 2: Translating Pi to base-26...");
-//        int[] translatedPiBase26 =
-//                BaseTranslator.convertBase(piHexDigits, 16, 26, PI_PRECISION);
-//        System.out.printf(
-//                "Digits of Pi in base-26: %s\n\n",
-//                MaybeTruncateString(Arrays.toString(translatedPiBase26), 50));
-//
-//        System.out.println("Problem 3: Converting Pi using basic alphabet");
-//        String basicConversion = DigitsToStringConverter.convertDigitsToString(
-//                translatedPiBase26, 26, BASIC_ALPHABET);
-//        System.out.printf(
-//                "Digits of Pi translated into a-z: %s\n\n",
-//                MaybeTruncateString(basicConversion, 50));
-//
-//        System.out.println("Problem 4: Getting word matches");
-//        Map<String, Integer> basicSubstrings =
-//                WordFinder.getSubstrings(basicConversion, WORD_LIST);
-//        for (Map.Entry<String, Integer> entry : basicSubstrings.entrySet()) {
-//            printWithContext(basicConversion, entry.getValue(),
-//                             entry.getKey(), 3, true);
-//        }
-//        System.out.printf("Word coverage using basic alphabet: %f\n\n",
-//                ((double)basicSubstrings.size()) / WORD_LIST.length);
-//
-//        System.out.println("Problem 5: Getting word matches with base-100 and" +
-//        		           " frequency dictionary");
-//        int[] translatedPiBase100 =
-//                BaseTranslator.convertBase(piHexDigits, 16, 100, PI_PRECISION);
-//        char[] alphabet = AlphabetGenerator.generateFrequencyAlphabet(
-//                100, WORD_LIST);
-//
-//        System.out.printf("Frequency dictionary generated: %s\n",
-//                          MaybeTruncateString(Arrays.toString(alphabet), 50));
-//
-//        String frequencyConversion =
-//                DigitsToStringConverter.convertDigitsToString(
-//                        translatedPiBase100, 100, alphabet);
-//        System.out.printf(
-//                "Digits of Pi translated into a-z: %s\n",
-//                MaybeTruncateString(frequencyConversion, 50));
-//
-//        Map<String, Integer> frequencySubstrings =
-//                WordFinder.getSubstrings(frequencyConversion, WORD_LIST);
-//        for (Map.Entry<String, Integer> entry :
-//             frequencySubstrings.entrySet()) {
-//            printWithContext(frequencyConversion, entry.getValue(),
-//                             entry.getKey(), 3, true);
-//        }
-//        System.out.printf("Word coverage using frequency alphabet: %f\n\n",
-//                ((double)frequencySubstrings.size()) / WORD_LIST.length);
-        
+        System.out.println("Problem 2: Translating Pi to base-26...");
+        int[] translatedPiBase26 =
+                BaseTranslator.convertBase(piHexDigits, 16, 26, PI_PRECISION);
+        System.out.printf(
+                "Digits of Pi in base-26: %s\n\n",
+                MaybeTruncateString(Arrays.toString(translatedPiBase26), 50));
+
+        System.out.println("Problem 3: Converting Pi using basic alphabet");
+        String basicConversion = DigitsToStringConverter.convertDigitsToString(
+                translatedPiBase26, 26, BASIC_ALPHABET);
+        System.out.printf(
+                "Digits of Pi translated into a-z: %s\n\n",
+                MaybeTruncateString(basicConversion, 50));
+
+        System.out.println("Problem 4: Getting word matches");
+        Map<String, Integer> basicSubstrings =
+                WordFinder.getSubstrings(basicConversion, WORD_LIST);
+        for (Map.Entry<String, Integer> entry : basicSubstrings.entrySet()) {
+            printWithContext(basicConversion, entry.getValue(),
+                             entry.getKey(), 3, true);
+        }
+        System.out.printf("Word coverage using basic alphabet: %f\n\n",
+                ((double)basicSubstrings.size()) / WORD_LIST.length);
+
+        System.out.println("Problem 5: Getting word matches with base-100 and" +
+        		           " frequency dictionary");
+        int[] translatedPiBase100 =
+                BaseTranslator.convertBase(piHexDigits, 16, 100, PI_PRECISION);
+        char[] alphabet = AlphabetGenerator.generateFrequencyAlphabet(
+                100, WORD_LIST);
+
+        System.out.printf("Frequency dictionary generated: %s\n",
+                          MaybeTruncateString(Arrays.toString(alphabet), 50));
+
+        String frequencyConversion =
+                DigitsToStringConverter.convertDigitsToString(
+                        translatedPiBase100, 100, alphabet);
+        System.out.printf(
+                "Digits of Pi translated into a-z: %s\n",
+                MaybeTruncateString(frequencyConversion, 50));
+
+        Map<String, Integer> frequencySubstrings =
+                WordFinder.getSubstrings(frequencyConversion, WORD_LIST);
+        for (Map.Entry<String, Integer> entry :
+             frequencySubstrings.entrySet()) {
+            printWithContext(frequencyConversion, entry.getValue(),
+                             entry.getKey(), 3, true);
+        }
+        System.out.printf("Word coverage using frequency alphabet: %f\n\n",
+                ((double)frequencySubstrings.size()) / WORD_LIST.length);
+
     }
-    
+
     /**
      * If the input is less than or equal to len letters long, return it
      * unchanged. If the input is greater than len letters long, trim it to
      * len letters, then add an ellipses to the end.
-     * 
+     *
      * @param input String to maybe truncate.
      * @param len Length to truncate to.
      * @return The input, potentially truncated to len letters with a trailing
@@ -99,7 +99,7 @@ public class Main {
     /**
      * Pretty print a substring of a string with some context information to
      * either side.
-     * 
+     *
      * @param haystack String to print from.
      * @param offset Index to start the substring in haystack.
      * @param needle The substring that should be printed from haystack.
