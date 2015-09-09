@@ -9,5 +9,5 @@ Setup environment and learn syntax, Java project structure. Wrote class to parse
 Write black-box tests based on specifications, prior to writing code. Wrote classes to convert digits of pi between bases, express digits in base-26, convert base-26 digits into characters, and ultimately find English words in the resulting string of characters. 
 
 ## Problem Set 2: Specifications and designing with state
-Write moethod specifications and tests for those specifications. Use state machines to design a midi piano. Application allows user to play notes on keyboard, change instruments and octaves, and record and play back notes.   
+Write method specifications and tests for those specifications. Use state machines to design a midi piano. Application allows user to play notes on keyboard, change instruments and octaves, and record and play back notes.   
 
