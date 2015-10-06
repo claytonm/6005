@@ -1,8 +1,9 @@
 package calculator;
 
-import calculator.Lexer;
+
 import calculator.Lexer.Token;
-import java.util.ArrayList;
+import calculator.Lexer.Token.*;
+
 
 /*
  * Expression ::= number | number unit | expression operator expression
@@ -17,9 +18,9 @@ import java.util.ArrayList;
  */
 class Parser {
 
+    Lexer lexer;
     // String expression;
     private static final double PT_PER_IN = 72;
-    private final Lexer lexer;
 
 	@SuppressWarnings("serial")
 	static class ParserException extends RuntimeException {
@@ -28,9 +29,31 @@ class Parser {
 	/**
 	 * Type of values.
 	 */
-	private enum ValueType {
+	public enum ValueType {
 		POINTS, INCHES, SCALAR
 	};
+
+    public class Expression {
+
+        Token operator;
+        Token leaf = null;
+        Expression leftExpression;
+        Expression rightExpression;
+
+        public Expression(Token leaf) {
+            this.leaf = leaf;
+        }
+
+        public Expression(Token operator, Expression leftExpression, Expression rightExpression) {
+            this.operator = operator;
+            this.leftExpression = leftExpression;
+            this.rightExpression = rightExpression;
+        }
+
+        public Boolean isLeaf() {
+            return this.leaf != null;
+        }
+    }
 
 	/**
 	 * Internal value is always in points.
@@ -57,97 +80,142 @@ class Parser {
 		}
 	}
 
-
-    Parser(Lexer lexer) {
-        // this.expression = expression;
+    Parser (Lexer lexer) {
         this.lexer = lexer;
     }
 
 	// TODO write method spec
 
-	public ArrayList<String> Parser(Lexer lexer) {
-        ArrayList returnArray = new ArrayList<String>();
-		// TODO implement for Problem 3
-        if (lexer.hasNext()) {
-            Token token = lexer.next();
+    public Expression Parser(Lexer lexer) {
+        Expression expression;
+        Token token = lexer.next();
+        if (token != null) {
             if (token.type == Type.SCALAR | token.type == Type.POINTS | token.type == Type.INCHES) {
-                returnArray.add(token.text);
-                return (returnArray);
+                expression = new Expression(token);
+                return expression;
             } else {
                 Token operator;
-                ArrayList leftValue;
-                ArrayList rightValue;
-                leftValue = Parser(lexer);
-                if (lexer.hasNext()) {
-                    operator = lexer.next();
-                    if (operator.type == Type.INCHSYMBOL | operator.type == Type.POINTSYMBOL) {
-                        ArrayList UnitConversion = new ArrayList<>();
-                        UnitConversion.add(Lexer.makeMultiply().text);
-                        UnitConversion.add(leftValue);
+                Expression leftExpression;
+                Expression rightExpression;
+                leftExpression = Parser(lexer);
+                operator = lexer.next();
+                if (operator != null) {
+                    if (operator.type == Type.CLOSEPAREN) {
+                        return leftExpression;
+                    } else if (operator.type == Type.INCHSYMBOL | operator.type == Type.POINTSYMBOL) {
+                        Expression rightLeftExpression;
                         if (operator.type == Type.INCHSYMBOL) {
-                            UnitConversion.add(Lexer.makeInch().text);
+                            rightLeftExpression = new Expression(Lexer.makeInch());
                         } else {
-                            UnitConversion.add(Lexer.makePoint().text);
+                            rightLeftExpression = new Expression(Lexer.makePoint());
                         }
-                        leftValue = UnitConversion;
-                        if (lexer.hasNext()) {
-                            operator = lexer.next();
-                            if (operator.type == Type.CLOSEPAREN) {
-                                return leftValue;
-                            }
-                            else {
-                                returnArray.add(operator.text);
+                        Expression UnitConversion = new Expression(Lexer.makeMultiply(), rightLeftExpression, leftExpression);
+                        leftExpression = UnitConversion;
+                        operator = lexer.next();
+                    }
+                    if (operator != null) {
+                        rightExpression = Parser(lexer);
+                        Token rightOperator = lexer.next();
+                        if (rightOperator != null) {
+                            if (rightOperator.type == Type.CLOSEPAREN) {
+                                return new Expression(operator, leftExpression, rightExpression);
+                                // return new Expression(operator, leftExpression, rightExpression);
+                            } else if (rightOperator.type == Type.INCHSYMBOL | operator.type == Type.POINTSYMBOL) {
+                                Expression rightLeftExpression;
+                                if (rightOperator.type == Type.INCHSYMBOL) {
+                                    rightLeftExpression = new Expression(Lexer.makeInch());
+                                } else {
+                                    rightLeftExpression = new Expression(Lexer.makePoint());
+                                }
+                                Expression UnitConversion = new Expression(Lexer.makeMultiply(), rightLeftExpression, rightExpression);
+                                rightExpression = UnitConversion;
                             }
                         }
+                    } else {
+                        return leftExpression;
                     }
-                    else if (operator.type == Type.CLOSEPAREN) {
-                        return leftValue;
-                    }
-                    else {
-                        returnArray.add(operator.text);
-                    }
-                }
-                returnArray.add(leftValue);
-                if (lexer.hasNext()) {
-                    rightValue = Parser(lexer);
-                    returnArray.add(rightValue);
-                    if (lexer.hasNext()) {
-                        Token nextToken = lexer.next();
-                        if (nextToken.type == Type.INCHSYMBOL | nextToken.type == Type.POINTSYMBOL) {
-                            ArrayList UnitConversion = new ArrayList<>();
-                            UnitConversion.add(Lexer.makeMultiply().text);
-                            UnitConversion.add(returnArray);
-                            if (nextToken.type == Type.INCHSYMBOL) {
-                                UnitConversion.add(Lexer.makeInch().text);
-                            } else {
-                                UnitConversion.add(Lexer.makePoint().text);
-                            }
-                            return (UnitConversion);
-                        }
-                    }
-                    return (returnArray);
+                } else {
+                    return leftExpression;
                 }
             }
+        } else {
+            return null;
         }
-        else {
-            return(returnArray);
+        return null;
+    }
+
+
+
+    public Value apply(Token operator, Value leftOperand, Value rightOperand) {
+        Type operatorType = operator.getOperatorType();
+        ValueType leftType = leftOperand.type;
+        ValueType rightType = rightOperand.type;
+        Double leftValue = leftOperand.value;
+        Double rightValue = rightOperand.value;
+
+        switch (operatorType) {
+            case PLUS:
+                if (leftType == ValueType.SCALAR) {
+                    return(new Value(leftValue + rightValue, rightType));
+                }
+                else {
+                    return(new Value(leftValue + rightValue, leftType));
+                }
+            case MINUS:
+                if (leftType == ValueType.SCALAR) {
+                    return(new Value(leftValue - rightValue, rightType));
+                }
+                else {
+                    return(new Value(leftValue - rightValue, leftType));
+                }
+            case MULTIPLY:
+                if (leftType == ValueType.SCALAR) {
+                    return(new Value(leftValue*rightValue, rightType));
+                }
+                else if (rightType == ValueType.SCALAR){
+                    return(new Value(leftValue*rightValue, leftType));
+                }
+                else if (leftType == rightType) {
+                    return(new Value(leftValue*rightValue, leftType));
+                }
+                else if (leftType == ValueType.INCHES & rightType == ValueType.POINTS) {
+                    return(new Value(leftValue*rightValue, ValueType.SCALAR));
+                }
+                else {
+                    return(new Value(leftValue*rightValue, ValueType.SCALAR));
+                }
+            case DIVIDE:
+                if (leftType == ValueType.SCALAR) {
+                    return(new Value(leftValue/rightValue, rightType));
+                }
+                else if (rightType == ValueType.SCALAR){
+                    return(new Value(leftValue/rightValue, leftType));
+                }
+                else {
+                    return(new Value(leftValue/rightValue, ValueType.SCALAR));
+                }
         }
-        return(returnArray);
-	}
-
-
-
-
+        return null;
+    }
 
 	// TODO write method spec
 	public Value evaluate(String expression) {
 		// TODO implement for Problem 4
         Lexer lexer = new Lexer(expression);
-        ArrayList<String> parsed = Parser(lexer);
-
-        String operator = parsed.get(0);
-        return null;
-
-
+        Expression parsed = Parser(lexer);
+        return evaluateIter(parsed);
 	}
-}
+
+    public Value evaluateIter(Expression parsed) {
+        if (parsed.isLeaf()) {
+            Token token = parsed.leaf;
+            return(new Value(token.getTokenValue(), token.getTokenType()));
+        }
+        else {
+            Token operator = parsed.operator;
+            Expression leftExpression = parsed.leftExpression;
+            Expression rightExpression = parsed.rightExpression;
+            return apply(operator, evaluateIter(leftExpression), evaluateIter(rightExpression));
+            }
+        }
+    }
