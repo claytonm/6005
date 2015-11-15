@@ -1,4 +1,4 @@
-# 6005
+# 6.005
 
 Solutions to the Fall 2011 iteration of the MIT Course Elements of Software Construction.
 
@@ -17,4 +17,7 @@ The theme this week is mutation. To illustrate, we design a simple calculator in
 Mutability enters with the Lexer object, which is mutated as each call to its next() method peels off another token.
 
 Students of 6.001 or readers of SICP will recognize the similarity between this project and the piece de resistance of that course, the design of a Scheme interperter.
+
+## Problem Set 4: Immutability
+Contra PS3, in this problem set we use immutable objects to design a SAT solver for Sudoku. This involves defining a Sudoku class and it rep invariants, converting Sudoku into a logical expression in conjuctive normal form, solving that expression through a recursive backtracking algorithm, and then converting the solution into a completed sudoku puzzle.
 
