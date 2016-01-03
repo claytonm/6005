@@ -1,0 +1,15 @@
+X:1
+T:Simple scale
+C:Unknown
+M:4/4
+L:1/1
+Q:90
+V:1
+V:2
+K:C
+% C D E F || AAAA |z2 [CEG] D E:| EFGA |
+% D/4 D/4 E F (3DEF |z1/2 [CEG] [CEG] (3DEF (3DEF A A A :|
+V:1
+C C C C |
+V:2
+G F E D |
