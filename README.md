@@ -21,3 +21,13 @@ Students of 6.001 or readers of SICP will recognize the similarity between this 
 ## Problem Set 4: Immutability
 Contra PS3, in this problem set we use immutable objects to design a SAT solver for Sudoku. This involves defining a Sudoku class and it rep invariants, converting Sudoku into a logical expression in conjuctive normal form, solving that expression through a recursive backtracking algorithm, and then converting the solution into a completed sudoku puzzle.
 
+## Project 1: ABC Music Player
+ABC is a music notation that can be encoded in a standard text file. For example, ^F1/2 is an F-sharp half-note, [CEG] is a C-major chord, (3_AB^C is A-flat, B, and C-sharp played in a triplet, and z is a quarter-note rest. This project involves the design from scratch of a system to parse and play ABC files. This requires:
+
+1) A system to represent musical objects. For example, the one property that notes, rests, chords, and triplets all have in common is that they persist in time. They can therefore each be implemented as extensions of an abstract note class that contains only a duration variable. 
+
+2) A system to read in ABC files, tokenize the symbols line-by-line, and then parse the stream of tokens into an abstract syntax tree. The syntax tree reflects the structure of the music in terms of repetitions, multiple-voices, etc. The nodes of the tree - the smallest unit of musical structure - are bars. The bar object class contains static variables that contain the key and time signature of the piece, and instance variables that contain any accidentals that occur in the bar itelf.
+
+3) A class to traverse the syntax tree, and make the appropriate call to the play method in Java's MIDI Sequence class. Different note objects are played differently: notes are simply played at a certain pitch for a certain duration, rests are not played at all but should advance the time forward, chords begin multiple notes at the same time and endure for the length of their longest note. We create a visitor class to handle these cases with a single function. The ToPitch class implements the Visitor class with method signatures for notes, rests, chords, and triplets, each of which evokes Java's MIDI play method in the appropriate way.
+
+This project synthesized all perviously class material and required a substantial amount of design and planning. Plan before you code!
