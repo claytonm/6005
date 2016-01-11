@@ -31,3 +31,6 @@ ABC is a music notation that can be encoded in a standard text file. For example
 3) A class to traverse the syntax tree, and make the appropriate call to the play method in Java's MIDI Sequence class. Different note objects are played differently: notes are simply played at a certain pitch for a certain duration, rests are not played at all but should advance the time forward, chords begin multiple notes at the same time and endure for the length of their longest note. We create a visitor class to handle these cases with a single function. The ToPitch class implements the Visitor class with method signatures for notes, rests, chords, and triplets, each of which evokes Java's MIDI play method in the appropriate way.
 
 This project synthesized all perviously class material and required a substantial amount of design and planning. Plan before you code!
+
+## Problem Set 5: Networks
+This problem set is about distributing computations over a network through processes and sockets. We make two client/server programs. The first is a simple echo server that prints back input from the user verbatim. The second is a more interesting protocol: the client accepts an integer as input from the user, connects to several servers, and distributes prime number finding to each of those servers.  
