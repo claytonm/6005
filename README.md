@@ -33,4 +33,7 @@ ABC is a music notation that can be encoded in a standard text file. For example
 This project synthesized all perviously class material and required a substantial amount of design and planning. Plan before you code!
 
 ## Problem Set 5: Networks
-This problem set is about distributing computations over a network through processes and sockets. We make two client/server programs. The first is a simple echo server that prints back input from the user verbatim. The second is a more interesting protocol: the client accepts an integer as input from the user, connects to several servers, and distributes prime number finding to each of those servers.  
+This problem set is about distributing computations over a network through processes and sockets. We make two client/server programs. The first is a simple echo server that prints back input from the user verbatim. The second is a more interesting protocol: the client accepts an integer as input from the user, connects to several servers, and distributes prime number finding to each of those servers. 
+
+## Problem Set 6: Threadsafe Minesweeper
+This problem is about implementing thread-safe data structures. We implement the game Minesweeper across a server that accepts multiple clients who can play the same minesweeper board simultaneously. 
