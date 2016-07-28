@@ -39,11 +39,4 @@ public class JottoModel {
 		in.close();
 		return response;
 	}
-
-	public static void main(String[] args) throws IOException {
-		String puzzleNumber = args[0];
-		String guess = args[1];
-		JottoModel jotto = new JottoModel(puzzleNumber);
-		System.out.println(jotto.makeGuess(guess));
-	}
 }
