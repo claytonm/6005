@@ -7,13 +7,16 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.ServerSocket;
 
 /**
  * // TODO Write specifications for your JottoGUI class.
  */
 public class JottoGUI extends JFrame implements ActionListener {
+
+	private final static int PORT = 4444;
+	private ServerSocket serverSocket;
+
 
 	private JButton newPuzzleButton;
 	private JTextField newPuzzleNumber;
@@ -33,18 +36,22 @@ public class JottoGUI extends JFrame implements ActionListener {
 
 	public void makeGuess(int puzzleNumberValue, String guessText) {
 
+		// PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+		int row = guessTable.getRowCount() - 1;
+
 		JottoModel jotto = new JottoModel(Integer.toString(puzzleNumberValue));
 		try {
 			String response = jotto.makeGuess(guessText);
 			String[] responseArgs = response.split("\\s+");
 			String matchesTotal = responseArgs[1];
-			String positionMathces = responseArgs[2];
+			String positionMatches = responseArgs[2];
 			if (response == "guess 5 5") {
 				// System.out.println("You win!. The secret word was " + guessText);
 				guessTable.victory();
 			} else {
 				// System.out.println(response);
-				guessTable.addRow(guessText, matchesTotal, positionMathces);
+				guessTable.insertResults(matchesTotal, positionMatches, row);
 			}
 			guess.setText("");
 		} catch (IOException e) {
@@ -52,22 +59,6 @@ public class JottoGUI extends JFrame implements ActionListener {
 		}
 	}
 
-	private void handleGuess(int puzzleNumberValue,
-							 String guessText,
-							 Socket socket,
-							 Boolean keepRunning) throws IOException {
-
-		guessTable.addGuessToRow(guessText);
-		int rows = guessTable.getRowCount() - 1;
-
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
-		try {
-			makeGuess(puzzleNumberValue, guessText);
-			} finally {
-			out.close();
-		}
-	}
 
 
 
@@ -78,8 +69,9 @@ public class JottoGUI extends JFrame implements ActionListener {
 			puzzleNumber.setText("Puzzle #" + puzzleNumberValue);
 			guessTable.reset();
 		} else if (guess.equals(e.getSource())) {
-
-			makeGuess(puzzleNumberValue, guess.getText());
+			guessTable.addGuessToRow(guess.getText());
+			(new Thread(new GuessThread(puzzleNumberValue, guess.getText()))).start();
+			// makeGuess(puzzleNumberValue, guess.getText());
 		}
 	}
 
@@ -104,6 +96,13 @@ public class JottoGUI extends JFrame implements ActionListener {
 		public void addRow(String guess, String matchesTotal, String matchesPosition) {
 			model.addRow(new Object[]{guess, matchesTotal, matchesPosition});
 		}
+
+		public void insertResults(String matchesTotal, String matchesPosition, int row) {
+			model.setValueAt(matchesTotal, row, 1);
+			model.setValueAt(matchesPosition, row, 2);
+		}
+
+		public int getRowCount() {return model.getRowCount();}
 
 		public void reset() {
 			int rowCount = model.getRowCount();
@@ -153,7 +152,6 @@ public class JottoGUI extends JFrame implements ActionListener {
 
 
 	public JottoGUI() {
-
 		// randomly set initial puzzle nunber
 		puzzleNumberValue = (int)(Math.random() * ( 10000 - 1 ));
 		newPuzzleButton = new JButton("New Puzzle");
@@ -179,10 +177,30 @@ public class JottoGUI extends JFrame implements ActionListener {
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		setLayout(layout);
-
 	}
 
-	public static void main(final String[] args) {
+	public class GuessThread implements Runnable {
+
+		// this subclass constitutes the solution to Problem 1
+		// given a socket, it connects each client that connects
+		// to that socket in a new thread; the threads are actually
+		// created in the method serve()
+		// Socket socket;
+		int puzzleNumberValue;
+		String guessText;
+
+		public GuessThread(int puzzleNumberValue, String guessText) {
+			// this.socket = socket;
+			this.puzzleNumberValue = puzzleNumberValue;
+			this.guessText = guessText;
+		}
+
+		public void run() {
+			makeGuess(this.puzzleNumberValue, this.guessText);
+		}
+	}
+
+	public static void main(final String[] args) throws IOException {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				JottoGUI main = new JottoGUI();
