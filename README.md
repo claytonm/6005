@@ -37,3 +37,11 @@ This problem set is about distributing computations over a network through proce
 
 ## Problem Set 6: Threadsafe Minesweeper
 This problem is about implementing thread-safe data structures. We implement the game Minesweeper across a server that accepts multiple clients who can play the same minesweeper board simultaneously. 
+
+## Problem Set 7: Multi-threaded GUI
+Jotto is a word game whereby each player tries to guess a secret five-letter word. In this project, we implement a Jotto GUI that allows a player to make guesses and see their guess history in a drop-down. Multi-threadedness comes in with the ability to make multiple guesses simultaneously. 
+
+## Project 2: Instant Messaging Application
+This project combines the three main ideas from Problem Sets 5 through 7 - networked computed and client-server protocols, threadsafe data structures, and user interface design, into the creation of an instant messaging application. 
+
+The underlying data structure represents members and their conversations. The client-server protocol specifies how to start and end a conversation, make a comment, and join an existing conversation. The GUI consists of a central window that shows all users that are online, all conversations that are currently taking place, and buttons that allow users to start and new conversation or join and existing conversation. Each conversation takes place in a new window, witn a text field for entering commemnts, and a text box to see the entire conversation.
