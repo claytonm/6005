@@ -1,8 +1,7 @@
 package echo.client;
 
-import java.io.IOException;
-import java.net.*;
 import java.io.*;
+import java.net.Socket;
 
 /**
  * A simple client that will interact with an EchoServer.
@@ -10,53 +9,43 @@ import java.io.*;
 public class EchoClient {
 
 	/**
-	 * @param args String array containing Program arguments.  It should only
-	 *             contain exactly one String indicating which server to connect to.
-	 *             We require that this string be in the form hostname:portnumber.
+	 * @param args String array containing Program arguments.  It should only 
+	 *      contain exactly one String indicating which server to connect to.
+	 *      We require that this string be in the form hostname:portnumber.
 	 */
-	public static void main(String[] args) throws IOException {
 
-		if (args.length != 1) {
-			System.err.println(
-					"Usage: java EchoClient <server address:port number>");
-			System.exit(1);
-		} else {
-			String[] serverAddress = args[0].split(":");
-			if (serverAddress.length != 2) {
-				System.err.println(
-						"Argument must be of the form <server address:port number>");
-				System.exit(1);
-			} else {
+	BufferedReader in;
+	PrintWriter out;
+	Socket socket;
 
-				String hostName = serverAddress[0];
-				int portNumber = Integer.parseInt(serverAddress[1]);
+	public EchoClient(String host, int port) throws IOException {
+		socket = new Socket(host, port);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+	}
 
-				try (
-						Socket echoSocket = new Socket(hostName, portNumber);
-						PrintWriter out =
-								new PrintWriter(echoSocket.getOutputStream(), true);
-						BufferedReader in =
-								new BufferedReader(
-										new InputStreamReader(echoSocket.getInputStream()));
-						BufferedReader stdIn =
-								new BufferedReader(
-										new InputStreamReader(System.in))
-				) {
-					String userInput;
-					while ((userInput = stdIn.readLine()) != null) {
-						out.println(userInput);
-						System.out.println(in.readLine());
-					}
-				} catch (UnknownHostException e) {
-					System.err.println("Don't know about host " + hostName);
-					System.exit(1);
-				} catch (IOException e) {
-					System.err.println("Couldn't get I/O for the connection to " +
-							hostName);
-					System.exit(1);
-				}
-			}
+	public void send(String message) throws IOException {
+		out.println(message);
+		out.flush();
+	}
+
+	public void showReply() throws IOException {
+		System.out.println(in.readLine());
+	}
+
+	public void request() throws IOException {
+		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+		String input = stdIn.readLine();
+		while (input != null) {
+			send(input);
+			showReply();
+			input = stdIn.readLine();
 		}
 	}
-}
 
+	public static void main(String[] args) throws IOException {
+			int port = Integer.parseInt(args[1]);
+			EchoClient client = new EchoClient("localhost", port);
+			client.request();
+	}
+}
