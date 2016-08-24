@@ -37,13 +37,12 @@ public class Member {
     public String getName() {return this.name;}
 
     public void joinConversation(Conversations conversations, int key) {
-        conversations.getConversation(key).addMember(this);
         convoKeys.add(conversations.getConversation(key).getKey());
     }
 
     public void leaveConversation(Conversations conversations, int key) {
         convoKeys.remove(conversations.getConversation(key).getKey());
-        conversations.getConversation(key).removeMember(this, conversations);
+        conversations.getConversation(key).removeMember(this);
     }
 
     public void comment(Conversations conversations, int key, String comment) {

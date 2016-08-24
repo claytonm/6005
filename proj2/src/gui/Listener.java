@@ -45,16 +45,6 @@ public class Listener implements ActionListener {
         try {
             if (startConversationButton.equals(e.getSource())) {
                 startConversation(client, memberList);
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            startConversation(client, memberList);
-                        } catch (IOException e) {
-                            System.err.println(e.getMessage() + "Hello world");
-                        }
-                    }
-                }).start();
-//                startConversation(client, memberList);
             } else if (joinConversationButton.equals(e.getSource())) {
                 joinConversation(client, conversationList);
             }

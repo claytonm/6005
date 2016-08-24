@@ -66,7 +66,8 @@ public class MinesweeperServer {
 
 
     /**
-     * Run the server, listening for client connections and handling them.  
+     * Run the server, listening for client connections and handling them.
+	 *
      * Never returns unless an exception is thrown.
      * @throws IOException if the main server socket is broken
      * (IOExceptions from individual clients do *not* terminate serve()).

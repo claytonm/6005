@@ -70,11 +70,11 @@ public class Server {
         Member newMember = new Member(memberName, members);
         members.addMember(newMember);
 
-        // add client PrintWriter to Server
-        outs.put(newMember.getKey(), out);
-
         // return Member key to client
         send("key " + newMember.getKey(), out);
+
+        // add client PrintWriter to Server
+        outs.put(newMember.getKey(), out);
 
         // return existing conversations to client
         if (conversations.getSize() > 0) {
@@ -95,8 +95,7 @@ public class Server {
         names.add(memberNameOther);
 
         // create new conversation
-        Conversation conversation = new Conversation(names, conversations);
-        conversations.addConversation(conversation);
+        Conversation conversation = new Conversation(conversations);
 
         // add members to conversation
         conversations.getConversation(conversation.getKey()).addMember(members.getMember(memberKey));
@@ -105,10 +104,6 @@ public class Server {
         // send updated Conversations list to all client PrintWriters
         sendAll("conversations " + conversations.toString(), outs);
 
-        System.out.println("start " + conversation.getKey() + "@" + conversation.namesString() + "@" + conversation.toString());
-
-//        send("start " + conversation.getKey() + "@" + conversation.namesString() + "@" + conversation.toString(members), outs.get(memberKey));
-//        send("start " + conversation.getKey() + "@" + conversation.namesString() + "@" + conversation.toString(members), outs.get(otherMemberKey));
         send("start " + conversation.getKey() + "@" + conversation.namesString() + "@" + "Start...", outs.get(memberKey));
         send("start " + conversation.getKey() + "@" + conversation.namesString() + "@" + "Start...", outs.get(otherMemberKey));
     }
@@ -120,43 +115,72 @@ public class Server {
         conversations.getConversation(conversationKey).addMember(members.getMember(memberKey));
         members.getMember(memberKey).joinConversation(conversations, conversationKey);
 
-        sendAll("joined " + conversationKey + ";" + conversations.getConversation(conversationKey).namesString(), outs);
+        // Inform all users that user has joined conversation.
+        sendAll("joined " +
+                conversationKey + ";" +
+                conversations.getConversation(conversationKey).namesString(),
+                outs);
+
+        System.out.println("User added to conversation: " +
+                conversations.getConversation(conversationKey).toString(members));
+        // Actually add user to conversation
+        send("useradded@" +
+                conversationKey + "@" +
+                conversations.getConversation(conversationKey).toString(members),
+                outs.get(memberKey));
     }
 
 
     public void leaveConversation(String input) {
         int memberKey = getMemberKey(input);
         int conversationKey = getConversationKey(input);
-        conversations.getConversation(conversationKey).removeMember(members.getMember(memberKey), conversations);
-        members.getMember(memberKey).joinConversation(conversations, conversationKey);
-        System.out.print("Conversations: " + conversations.toString() + "\n");
+        if (conversations.hasConversation(conversationKey)) {
+            conversations.getConversation(conversationKey).removeMember(members.getMember(memberKey));
+            String outString;
+            if (conversations.getConversation(conversationKey).countMembers() < 2) {
+                String names = conversations.getConversation(conversationKey).namesString();
+                conversations.removeConversation(conversationKey);
+                outString = "leave " + names + " " + conversationKey;
+                sendAll(outString, outs);
+                outString = "remove " + conversationKey;
+                sendAll(outString, outs);
+            } else {
+                String names = conversations.getConversation(conversationKey).namesString();
+                outString = "leave " + names + " " + conversationKey;
+                sendAll(outString, outs);
+            }
+        }
     }
 
-    public void postComment(String input) {
-        int memberKey = getMemberKey(input);
-        int conversationKey = getConversationKey(input);
-        List<Member> members = conversations.getConversation(conversationKey).getMembers();
-        System.out.println("Members in conversation: " + members);
-        String comment = getComment(input);
-        conversations.getConversation(conversationKey).addComment(new Comment(memberKey, comment));
-        String names = conversations.getConversation(conversationKey).namesString();
-        System.out.println("Leaving a comment: " + conversations.getConversation(conversationKey).toString(this.members));
 
-        for (Member member : members) {
-            PrintWriter out = outs.get(member.getKey());
-            String outString = "comment " +
-                    names + " " +
-                    conversationKey + " " +
-                    conversations.getConversation(conversationKey).toString(this.members);
-            System.out.println(outString);
-            out.println(outString);
-            out.flush();
+    public void comment(String input) {
+        int memberKey = Integer.valueOf(input.split("@")[1]);
+        // int conversationKey = getConversationKey(input);
+        int conversationKey = Integer.valueOf(input.split("@")[2]);
+        if (conversations.hasConversation(conversationKey)) {
+            String comment = input.split("@")[3];
+            String outComment = members.getMember(memberKey).getName() + ":" + comment;
+            List<Member> conversationMembers = conversations.getConversation(conversationKey).getMembers();
+            // String comment = getComment(input);
+            conversations.getConversation(conversationKey).addComment(new Comment(memberKey, comment));
+
+            String names = conversations.getConversation(conversationKey).namesString();
+
+            System.out.println("Leaving a comment: " +
+                    conversations.getConversation(conversationKey).toString(members));
+
+            for (Member member : conversationMembers) {
+                System.out.println("Send to member: " + member.getKey());
+                PrintWriter out = outs.get(member.getKey());
+                String outString = "post@" +
+                        conversationKey + "@" +
+                        outComment;
+                send(outString, out);
+            }
         }
     }
 
     public void getMemberNames(PrintWriter out) {
-        System.out.println(members.toString());
-        System.out.println("Hello world");
         out.print(members.toString() + "\n");
         out.flush();
     }
@@ -166,13 +190,12 @@ public class Server {
     }
 
     public void handle(String input, PrintWriter out) throws Exception {
-        System.out.println(input);
         if (input.startsWith("join")) {joinConversation(input);}
         else if (input.startsWith("leave")) {leaveConversation(input);}
-        else if (input.startsWith("comment")) {postComment(input);}
         else if (input.startsWith("register")) {registerNewMember(input, out);}
         else if (input.startsWith("start")) {startConversation(input);}
         else if (input.startsWith("members")) {getMemberNames(out);}
+        else if (input.startsWith("post")) {comment(input);}
         else {invalidMessage(input);}
     }
 

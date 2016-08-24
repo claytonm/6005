@@ -64,11 +64,36 @@ public class ConversationsModel  {
         model.setElementAt(new Conversation(names, id), index);
     }
 
+    public void leaveConversations(String names, int conversationKey) {
+        System.out.println("Leavining converatsion: " + conversationKey);
+        if (names == "empty" && model.contains(new Conversation("names", conversationKey))) {
+            System.out.println("Leavining converatsion: " + conversationKey);
+            model.removeElement(new Conversation("names", conversationKey));
+        } else {
+            String[] namesList = names.split(",");
+            if (namesList.length == 1 && model.contains(new Conversation("names", conversationKey))) {
+                System.out.println("Leavining converatsion: " + conversationKey);
+                model.removeElement(new Conversation("names", conversationKey));
+            } else if (model.contains(new Conversation(names, conversationKey))) {
+                Integer index = model.indexOf(new Conversation(names, conversationKey));
+                model.setElementAt(new Conversation(names, conversationKey), index);
+
+            }
+        }
+    }
+
+
+    public void removeConversations(int conversationKey) {
+        model.removeElement(new Conversation("names", conversationKey));
+    }
+
     public ConversationsModel () {
         conversations = new HashMap<Integer, String>();
         model = new DefaultListModel<Conversation>();
     }
 
-    public DefaultListModel getModel() { return model;}
+    public DefaultListModel getModel() {
+        return model;
+    }
 
 }

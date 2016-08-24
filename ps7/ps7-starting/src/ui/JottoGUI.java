@@ -36,30 +36,46 @@ public class JottoGUI extends JFrame implements ActionListener {
 
 	public void makeGuess(int puzzleNumberValue, String guessText) {
 
-		// PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
+		// row to insert guess into
 		int row = guessTable.getRowCount() - 1;
 
 		JottoModel jotto = new JottoModel(Integer.toString(puzzleNumberValue));
+
 		try {
 			String response = jotto.makeGuess(guessText);
 			String[] responseArgs = response.split("\\s+");
 			String matchesTotal = responseArgs[1];
 			String positionMatches = responseArgs[2];
-			if (response == "guess 5 5") {
+			if (Integer.parseInt(matchesTotal) == 5 && Integer.parseInt(positionMatches) == 5) {
 				// System.out.println("You win!. The secret word was " + guessText);
-				guessTable.victory();
+				guessTable.insertResults("Correct! You win.", "", row);
 			} else {
 				// System.out.println(response);
 				guessTable.insertResults(matchesTotal, positionMatches, row);
 			}
-			guess.setText("");
 		} catch (IOException e) {
 			System.err.println("Caught IOException: " + e.getMessage());
 		}
 	}
 
+	public class GuessThread implements Runnable {
+		// given a socket, it connects each client that connects
+		// to that socket in a new thread; the threads are actually
+		// created in the method serve()
+		// Socket socket;
+		int puzzleNumberValue;
+		String guessText;
 
+		public GuessThread(int puzzleNumberValue, String guessText) {
+			// this.socket = socket;
+			this.puzzleNumberValue = puzzleNumberValue;
+			this.guessText = guessText;
+		}
+
+		public void run() {
+			makeGuess(this.puzzleNumberValue, this.guessText);
+		}
+	}
 
 
 	public void actionPerformed(ActionEvent e) {
@@ -70,8 +86,10 @@ public class JottoGUI extends JFrame implements ActionListener {
 			guessTable.reset();
 		} else if (guess.equals(e.getSource())) {
 			guessTable.addGuessToRow(guess.getText());
-			(new Thread(new GuessThread(puzzleNumberValue, guess.getText()))).start();
-			// makeGuess(puzzleNumberValue, guess.getText());
+			String guessed = guess.getText();
+			guess.setText("");
+			(new Thread(new GuessThread(puzzleNumberValue, guessed))).start();
+			guess.setText("");
 		}
 	}
 
@@ -179,28 +197,8 @@ public class JottoGUI extends JFrame implements ActionListener {
 		setLayout(layout);
 	}
 
-	public class GuessThread implements Runnable {
-
-		// this subclass constitutes the solution to Problem 1
-		// given a socket, it connects each client that connects
-		// to that socket in a new thread; the threads are actually
-		// created in the method serve()
-		// Socket socket;
-		int puzzleNumberValue;
-		String guessText;
-
-		public GuessThread(int puzzleNumberValue, String guessText) {
-			// this.socket = socket;
-			this.puzzleNumberValue = puzzleNumberValue;
-			this.guessText = guessText;
-		}
-
-		public void run() {
-			makeGuess(this.puzzleNumberValue, this.guessText);
-		}
-	}
-
 	public static void main(final String[] args) throws IOException {
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				JottoGUI main = new JottoGUI();

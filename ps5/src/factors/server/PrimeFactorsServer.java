@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,21 +39,45 @@ public class PrimeFactorsServer {
      *             contain one String indicating the port it should connect to.
      *             Defaults to port 4444 if no Program argument is present.
      */
-    public static void main(String[] args) {
-        // get port number
-        int portNumber = 4444;
-        if (args.length == 0) {
-            portNumber = portNumber;
-        } else if (args.length == 1) {
-            portNumber = Integer.parseInt(args[0]);
-        } else {
-            System.err.println("Usage: java EchoServer <port number>");
-            System.exit(1);
-        }
+
+    private int port;
+
+    public PrimeFactorsServer(int port) {
+        this.port = port;
         while (true) {
             try (
                     ServerSocket serverSocket =
-                            new ServerSocket(portNumber);
+                            new ServerSocket(port);
+                    Socket clientSocket = serverSocket.accept();
+                    PrintWriter out =
+                            new PrintWriter(clientSocket.getOutputStream(), true);
+                    BufferedReader in = new BufferedReader(
+                            new InputStreamReader(clientSocket.getInputStream()));
+            )
+        }
+
+    public List<String> parseInput(String input) {
+        Arrays.asList(input.split("\\s+"));
+    }
+
+    public BigInteger getN(List<String> input) {
+        return new BigInteger(input.get(1));
+    }
+
+    public BigInteger getLow(List<String> input) {
+        return new BigInteger(input.get(2));
+    }
+
+    public BigInteger getHigh(List<String> input) {
+        return new BigInteger(input.get(3));
+    }
+
+
+    public void factor (int port) {
+        while (true) {
+            try (
+                    ServerSocket serverSocket =
+                            new ServerSocket(port);
                     Socket clientSocket = serverSocket.accept();
                     PrintWriter out =
                             new PrintWriter(clientSocket.getOutputStream(), true);
@@ -61,24 +85,28 @@ public class PrimeFactorsServer {
                             new InputStreamReader(clientSocket.getInputStream()));
             ) {
                 String inputLine = in.readLine();
-                    List<String> inputList = Arrays.asList(inputLine.split("\\s+"));
-                    BigInteger N = new BigInteger(inputList.get(1));
-                    if (!N.equals(BigInteger.ONE)) {
-                        BigInteger low = new BigInteger(inputList.get(2));
-                        BigInteger high = new BigInteger(inputList.get(3));
-                        List<BigInteger> primes = PrimeFactorFind.FindFactor(N, low, high, PRIME_CERTAINTY);
-                        for (BigInteger prime : primes) {
-                            out.println("found " + N.toString() + " " + prime.toString());
-                        }
-                    } else {
-                        out.println("invalid");
+                List<String> inputList = Arrays.asList(inputLine.split("\\s+"));
+                BigInteger N = new BigInteger(inputList.get(1));
+                if (!N.equals(BigInteger.ONE)) {
+                    BigInteger low = new BigInteger(inputList.get(2));
+                    BigInteger high = new BigInteger(inputList.get(3));
+                    List<BigInteger> primes = PrimeFactorFind.FindFactor(N, low, high, PRIME_CERTAINTY);
+                    for (BigInteger prime : primes) {
+                        out.println("found " + N.toString() + " " + prime.toString());
                     }
+                } else {
+                    out.println("invalid");
+                }
             } catch (IOException e) {
                 System.out.println("Exception caught when trying to listen on port "
-                        + portNumber + " or listening for a connection");
+                        + port + " or listening for a connection");
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    public int getPort() {
+        return port;
     }
 }
 

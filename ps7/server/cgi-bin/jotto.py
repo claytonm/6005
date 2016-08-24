@@ -27,7 +27,7 @@ def validate_puzzle_id(puzzle):
 def validate_guess(guess, wordlist):
     if len(guess) != 5: return None
     if '*' in guess:
-        time.sleep(5)
+        time.sleep(15)
         return guess
     return guess if guess in wordlist else None
 

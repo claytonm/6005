@@ -65,18 +65,5 @@ public class Parser {
         }
         return segment;
     }
-
-    public static void main (String[] args) {
-//        String file = "/Users/clay/education/6-005-fall-2011/6-005-fall-2011/contents/assignments/source_files/proj1/sample_abc/scale.abc";
-//        ReadABCFile abc = new ReadABCFile(file);
-//        List<String> abcMusic = abc.fromFile(file);
-//        int n = abc.getLastHeaderLine(abcMusic);
-//        Header header = abc.getHeader(abcMusic);
-//        String music = abc.getMusic(abcMusic);
-//        Lexer lexer = new Lexer(music);
-//        Parser parser = new Parser(lexer, header);
-//        Segment segment = parser.Parse(lexer);
-//        System.out.print(segment.toString());
-    }
 }
 

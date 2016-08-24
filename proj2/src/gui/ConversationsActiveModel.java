@@ -44,36 +44,8 @@ public class ConversationsActiveModel {
             ActiveConversationComponents otherConversation = (ActiveConversationComponents)other;
             return getKey().equals(otherConversation.getKey());
         }
-
-        public void setText(String text) {
-            this.text = text;
-        }
     }
 
-    public void addConversation(final String reply) {
-        System.out.println("Seriously, start conversation.");
-        new Thread(new Runnable() {
-            public void run() {
-                String[] conversationsStrings = reply.split("\\s+")[1].split("@");
-                Integer key = Integer.valueOf(conversationsStrings[0]);
-                String names = conversationsStrings[1];
-                String text = conversationsStrings[2];
-                ActiveConversationComponents activeConversationComponents =
-                        new  ActiveConversationComponents(key, names, text);
-                model.addElement(activeConversationComponents);
-            }
-        }).start();
-    }
-
-    public void addCommentToConversation(String reply) {
-        System.out.println("Add comment to conversation.");
-        String[] conversationsStrings = reply.split("\\s+");
-        Integer key = Integer.valueOf(conversationsStrings[2]);
-        String text = conversationsStrings[3];
-        Integer index = model.indexOf(new ActiveConversationComponents(key, "names", "text"));
-        ActiveConversationComponents oldFrame = (ActiveConversationComponents)model.getElementAt(index);
-        oldFrame.activeConversation.textArea.setText(text);
-    }
 
     public ConversationsActiveModel(Client client) {
         this.client = client;
@@ -81,6 +53,7 @@ public class ConversationsActiveModel {
     }
 
     public DefaultListModel getModel() {
+
         return model;
     }
 }

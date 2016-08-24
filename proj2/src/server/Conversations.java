@@ -13,6 +13,7 @@ public class Conversations {
 
 
     private Boolean containsKey(int key) {
+
         return conversations.keySet().contains(key);
     }
 
@@ -21,55 +22,73 @@ public class Conversations {
 
 
     public Conversations() {
+
         conversations = Collections.synchronizedMap(new HashMap<Integer, Conversation>());
     }
 
     protected Conversation getConversation(int key) {
+
         return conversations.get(key);
     }
 
     protected void removeConversation(int key) {
+
         conversations.remove(key);
     }
 
     protected void addConversation(Conversation conversation) {
+
         conversations.put(conversation.getKey(), conversation);
+    }
+
+    protected boolean hasConversation(int conversationKey) {
+
+        return conversations.containsKey(conversationKey);
     }
 
     // Conversation class
 
     protected static class Conversation {
-        List<String> names;
         List<Member> members;
         List<Comment> comments;
         int key;
 
 
-        protected Conversation(List<String> names, Conversations conversations) {
-            this.names = Collections.synchronizedList(names);
-            Collections.sort(this.names);
-            this.comments = Collections.synchronizedList(new ArrayList());
-            this.key = makeKey(conversations);
+        protected Conversation(Conversations conversations) {
+            comments = Collections.synchronizedList(new ArrayList());
+            key = makeKey(conversations);
             conversations.addConversation(this);
-            this.members = Collections.synchronizedList(new ArrayList());
+            members = Collections.synchronizedList(new ArrayList());
         }
 
         protected void addMember(Member member) {
-
-            this.names.add(member.getName());
-            this.members.add(member);
+            members.add(member);
         }
 
-        public List<Member> getMembers() {return this.members;}
+        public List<Member> getMembers() {
 
-        protected void removeMember(Member member, Conversations conversations) {
-            this.names.remove(member.getName());
+            return members;
+        }
+
+        public int countMembers() {
+            return members.size();
+        }
+
+        public boolean hasMembers() {
+
+            return members.size() > 0;
+        }
+
+        protected void removeMember(Member member) {
+            members.remove(member);
             // if only one person is left in conversation,
             // remove conversation from conversations
-            if (names.size() == 1) {
-                conversations.removeConversation(this.getKey());
+            if (members.size() < 2) {
+                members.clear();
             }
         }
+
+
 
         private int makeKey(Conversations conversations) {
             int key = (int)(MAX_CONVERSATIONS * Math.random());
@@ -82,11 +101,13 @@ public class Conversations {
         }
 
         protected void addComment(Comment comment) {
-            this.comments.add(comment);
+
+            comments.add(comment);
         }
 
         protected int getKey() {
-            return this.key;
+
+            return key;
         }
 
 
@@ -99,33 +120,37 @@ public class Conversations {
                 this.comment = comment;
             }
 
-            public int getMemberKey() {
-                return memberKey;
-            }
-
             public String getComment() {
                 return comment;
             }
 
             public String toString(Members members) {
-                return members.getMember(memberKey).getName() + ":" + comment;
+                return members.getMember(memberKey).getName() + ":" + getComment();
             }
         }
 
         public String toString(Members members) {
             String commentsString = "";
-            for (Comment comment : this.comments) {
-                commentsString = commentsString + comment.toString(members) + ",";
+            if (comments.size() == 0) {
+                return "No comments yet.";
+            }
+            for (Comment comment : comments) {
+
+                commentsString = commentsString + comment.toString(members) + "~";
             }
             return commentsString.substring(0,commentsString.length()-1);
         }
 
         public String namesString() {
             String namesString = "";
-            for (String name : names) {
-                namesString = namesString + name + ",";
+            for (Member member : members) {
+                namesString = namesString + member.getName() + ",";
             }
-            return getKey() + ":" + namesString.substring(0,namesString.length()-1);
+            if (namesString.length() == 0) {
+                return getKey() + ":" + "empty";
+            } else {
+                return getKey() + ":" + namesString.substring(0,namesString.length()-1);
+            }
         }
     }
 

@@ -7,14 +7,12 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.InputMismatchException;
 import java.util.List;
 
 /**
- *  PrimeFactorsClient class for PrimeFactorsServer.  
+ *  PrimeFactorsClient class for PrimeFactorsServer.
  *
  *  Your PrimeFactorsClient class should take in Program arguments space-delimited
  *  indicating which PrimeFactorsServers it will connect to.
@@ -62,54 +60,54 @@ public class PrimeFactorsClient {
             portNumbers.add(Integer.parseInt(portNumber));
         }
 
-            // get integer to factor from user
-            try (
-                    BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            ) {
-                while (true) {
-                    List<String> factors = new ArrayList<String>();
-                    String N = stdIn.readLine();
-                    List<BigInteger> partition = PartitionSearchSpace.getPartition(N, numServers);
-                    System.out.println(partition);
+        // get integer to factor from user
+        try (
+                BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+        ) {
+            while (true) {
+                List<String> factors = new ArrayList<String>();
+                String N = stdIn.readLine();
+                List<BigInteger> partition = PartitionSearchSpace.getPartition(N, numServers);
+                System.out.println(partition);
 
-                    for (int i = 0; i <= partition.size() - 2; i++) {
-                        int portNumber = portNumbers.get(i);
-                        System.out.println(portNumber);
-                        String low = partition.get(i).add(BigInteger.ONE).toString();
-                        String high = partition.get(i + 1).toString();
-                        try (
-                                Socket echoSocket = new Socket(hostName, portNumber);
-                                PrintWriter out =
-                                        new PrintWriter(echoSocket.getOutputStream(), true);
-                                BufferedReader in =
-                                        new BufferedReader(
-                                                new InputStreamReader(echoSocket.getInputStream()));
-                        ) {
-                            String outString = "factor " + N + " " + low + " " + high;
-                            out.println(outString);
-                            String factorsOutput;
-                            // list to hold factors
-                            while ((factorsOutput = in.readLine()) != null) {
-                                factors.add(Arrays.asList(factorsOutput.split("\\s+")).get(2));
-                            }
-                            echoSocket.close();
-                        } catch (IOException e) {
-                            System.err.println("Couldn't read standard input.");
-                            System.exit(1);
+                for (int i = 0; i <= partition.size() - 2; i++) {
+                    int portNumber = portNumbers.get(i);
+                    System.out.println(portNumber);
+                    String low = partition.get(i).add(BigInteger.ONE).toString();
+                    String high = partition.get(i + 1).toString();
+                    try (
+                            Socket echoSocket = new Socket(hostName, portNumber);
+                            PrintWriter out =
+                                    new PrintWriter(echoSocket.getOutputStream(), true);
+                            BufferedReader in =
+                                    new BufferedReader(
+                                            new InputStreamReader(echoSocket.getInputStream()));
+                    ) {
+                        String outString = "factor " + N + " " + low + " " + high;
+                        out.println(outString);
+                        String factorsOutput;
+                        // list to hold factors
+                        while ((factorsOutput = in.readLine()) != null) {
+                            factors.add(Arrays.asList(factorsOutput.split("\\s+")).get(2));
                         }
+                        echoSocket.close();
+                    } catch (IOException e) {
+                        System.err.println("Couldn't read standard input.");
+                        System.exit(1);
                     }
-
-                    StringBuilder outString = new StringBuilder();
-                    for (String factor : factors) {
-                        outString.append(factor + "*");
-                    }
-                    System.out.println(">>>> " + outString.substring(0, outString.length() - 1).toString() + "\n");
-
                 }
-            } catch(IOException e){
-                    System.err.println("Couldn't read standard input.");
-                    System.exit(1);
+
+                StringBuilder outString = new StringBuilder();
+                for (String factor : factors) {
+                    outString.append(factor + "*");
+                }
+                System.out.println(">>>> " + outString.substring(0, outString.length() - 1).toString() + "\n");
+
             }
+        } catch(IOException e){
+            System.err.println("Couldn't read standard input.");
+            System.exit(1);
+        }
     }
 }
 

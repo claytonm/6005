@@ -3,7 +3,7 @@ package client;
 import gui.MemberModel;
 import gui.ConversationsModel;
 import gui.ConversationsActiveModel;
-import gui.ModelTest;
+import gui.MultipleConversationsGUI;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -31,14 +31,15 @@ public class Client {
         clientSocket = new Socket(HOST_NAME, PORT);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         out = new PrintWriter(clientSocket.getOutputStream());
-    }
-
-    public void setKey(String input) {
-        this.key = Integer.valueOf(input.split("\\s+")[1]);
+        key = (int)(100 * Math.random());
     }
 
     public int getKey() {
         return this.key;
+    }
+
+    public void setKey(String input) {
+        this.key = Integer.valueOf(input.split("\\s+")[1]);
     }
 
     public void send(String message) throws IOException {
@@ -52,32 +53,58 @@ public class Client {
 
     public void read(MemberModel memberModel,
                      ConversationsModel conversationsModel,
-                     ConversationsActiveModel activeConversationsModel) throws IOException  {
+                     MultipleConversationsGUI multipleConversationsGUI) throws IOException  {
         String reply = in.readLine();
         while (reply != null) {
-            handle(reply, memberModel, conversationsModel, activeConversationsModel);
+            handle(reply, memberModel, conversationsModel, multipleConversationsGUI);
             reply = in.readLine();
         }
+    }
+
+    public String parseConversationString(String conversationString) {
+        return conversationString.replaceAll("~", "\n") + "\n";
     }
 
     public void handle(String reply,
                        MemberModel memberModel,
                        ConversationsModel conversationsModel,
-                       ConversationsActiveModel activeConversationsModel) throws IOException {
+                       MultipleConversationsGUI multipleConversationsGUI) throws IOException {
         if (reply.startsWith("members")) {
             memberModel.addMembers(reply);
         } else if (reply.startsWith("conversations")) {
             conversationsModel.addConversations(reply);
         } else if (reply.startsWith("start")) {
-            System.out.println("Start converstion.");
-            activeConversationsModel.addConversation(reply);
+            int conversationKey = Integer.valueOf(reply.split("\\s+")[1].split("@")[0]);
+            System.out.println("Start converstion with key: " + conversationKey);
+            multipleConversationsGUI.addConversation(conversationKey);
         } else if (reply.startsWith("comment")) {
-            System.out.println("Reply starts with comment.");
-            activeConversationsModel.addCommentToConversation(reply);
-        } else if (reply.startsWith("key")) {
+            int conversationKey = Integer.valueOf(reply.split("\\s+")[2]);
+            String conversation = reply.split("\\s+")[3];
+            System.out.println("Add comment to conversation: " + conversationKey + " " + conversation);
+            multipleConversationsGUI.addComment(conversationKey, reply);
+        } else if (reply.startsWith("post")) {
+            System.out.println("Posting comment: " + reply);
+            int conversationKey = Integer.valueOf(reply.split("@")[1]);
+            String conversation = reply.split("@")[2] + "\n";
+            System.out.println("Add comment to conversation: " + conversationKey + " " + conversation);
+            multipleConversationsGUI.addComment(conversationKey, conversation);
+        }   else if (reply.startsWith("key")) {
             setKey(reply);
-        } else if (reply.startsWith("join")) {
+        }   else if (reply.startsWith("join")) {
             conversationsModel.joinConversations(reply);
+        }   else if (reply.startsWith("useradded")) {
+            System.out.println("User added: " + reply);
+            int conversationKey = Integer.valueOf(reply.split("@")[1]);
+            String conversationString = reply.split("@")[2];
+            System.out.println("Conversation string: " + conversationString);
+            multipleConversationsGUI.joinConversation(conversationKey, parseConversationString(conversationString));
+        } else if (reply.startsWith("leave")) {
+            String names = reply.split("\\s+")[1].split(":")[1];
+            int conversationKey = Integer.valueOf(reply.split("\\s+")[2]);
+            conversationsModel.leaveConversations(names, conversationKey);
+        } else if (reply.startsWith("remove")) {
+            int conversationKey = Integer.valueOf(reply.split("\\s+")[1]);
+            conversationsModel.removeConversations(conversationKey);
         }
     }
 }

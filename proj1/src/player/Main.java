@@ -57,7 +57,7 @@ public class Main {
 	}
 
 	public static void main (String[] args) {
-		String filename = "/Users/clay/education/6-005-fall-2011/6-005-fall-2011/contents/assignments/source_files/proj1/sample_abc/debussy.abc";
+		String filename = "/Users/clay/education/6-005-fall-2011/6-005-fall-2011/contents/assignments/source_files/proj1/sample_abc/prelude.abc";
 		play(filename);
 	}
 }

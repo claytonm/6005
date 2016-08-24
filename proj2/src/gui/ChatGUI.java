@@ -1,6 +1,5 @@
 package gui;
 
-
 import client.Client;
 
 import javax.swing.*;
@@ -20,18 +19,14 @@ import java.util.EventListener;
 public class ChatGUI extends JFrame {
 
     private final static int PORT = 4444;
-    private String name;
     private JList memberList;
     private JList conversationList;
-    private JList conversationsActiveList;
     private JLabel memberListLable;
     private JLabel conversationListLable;
     private JButton startConversationButton;
     private JButton joinConversationButton;
     private JScrollPane members;
     private JScrollPane conversations;
-    private JList conversationsActive;
-
 
     public void setLayout(GroupLayout layout) {
         layout.setHorizontalGroup(
@@ -44,7 +39,6 @@ public class ChatGUI extends JFrame {
                         .addGroup(layout.createSequentialGroup()
                                 .addComponent(conversations)
                                 .addComponent(joinConversationButton))
-                        .addComponent(conversationsActive)
         );
 
         layout.setVerticalGroup(
@@ -57,7 +51,6 @@ public class ChatGUI extends JFrame {
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(conversations)
                                 .addComponent(joinConversationButton))
-                        .addComponent(conversationsActive)
 
         );
     }
@@ -72,14 +65,14 @@ public class ChatGUI extends JFrame {
         // initiate the data models
         final MemberModel memberModel = new MemberModel();
         final ConversationsModel conversationsModel = new ConversationsModel();
-        final ConversationsActiveModel conversationsActiveModel = new ConversationsActiveModel(client);
+        final MultipleConversationsGUI multipleConversationsGUI = new MultipleConversationsGUI(client);
 
         // start background thread to listen
         // for data updates from server
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    client.read(memberModel, conversationsModel, conversationsActiveModel);
+                    client.read(memberModel, conversationsModel, multipleConversationsGUI);
                 } catch (IOException e) {
                     System.err.println(e.getMessage() + "Hello world");
                 }
@@ -97,8 +90,6 @@ public class ChatGUI extends JFrame {
         conversationListLable = new JLabel("Or join a conversation");
         startConversationButton = new JButton("Start conversation");
         joinConversationButton = new JButton("Join conversation");
-        conversationsActive = new JList(conversationsActiveModel.getModel());
-        conversationsActive.setCellRenderer(new ActiveConversationsRenderer());
 
 
         // initiate action listener
@@ -117,7 +108,10 @@ public class ChatGUI extends JFrame {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         setLayout(layout);
+
+        multipleConversationsGUI.display();
     }
+
 
     public static void main(final String[] args) throws IOException {
 
